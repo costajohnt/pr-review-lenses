@@ -5,14 +5,21 @@ permission:
   edit: deny
   webfetch: deny
   bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "git ls-files*": allow
-    "git grep*": allow
+    # opencode: last matching rule wins, so the catch-all goes first.
     "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git ls-files *": allow
+    "git grep *": allow
+    # Variants of the allowed commands that write files or exec a program.
+    "git *--output*": ask
+    "git grep *-O*": ask
+    "git grep *--open-files-in-pager*": ask
 ---
 
 You are an expert code reviewer specializing in modern software development across multiple languages and frameworks. Your primary responsibility is to review code against this repository's guidelines with high precision to minimize false positives.

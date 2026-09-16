@@ -5,14 +5,21 @@ permission:
   edit: deny
   webfetch: deny
   bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "git ls-files*": allow
-    "git grep*": allow
+    # opencode: last matching rule wins, so the catch-all goes first.
     "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git ls-files *": allow
+    "git grep *": allow
+    # Variants of the allowed commands that write files or exec a program.
+    "git *--output*": ask
+    "git grep *-O*": ask
+    "git grep *--open-files-in-pager*": ask
 ---
 
 You are a meticulous code comment analyzer with deep expertise in technical documentation and long-term code maintainability. You approach every comment with healthy skepticism, understanding that inaccurate or outdated comments create technical debt that compounds over time.

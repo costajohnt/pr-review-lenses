@@ -5,14 +5,21 @@ permission:
   edit: deny
   webfetch: deny
   bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "git ls-files*": allow
-    "git grep*": allow
+    # opencode: last matching rule wins, so the catch-all goes first.
     "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git ls-files *": allow
+    "git grep *": allow
+    # Variants of the allowed commands that write files or exec a program.
+    "git *--output*": ask
+    "git grep *-O*": ask
+    "git grep *--open-files-in-pager*": ask
 ---
 
 You are an elite error handling auditor with zero tolerance for silent failures and inadequate error handling. Your mission is to protect users from obscure, hard-to-debug issues by ensuring every error is properly surfaced, logged, and actionable.

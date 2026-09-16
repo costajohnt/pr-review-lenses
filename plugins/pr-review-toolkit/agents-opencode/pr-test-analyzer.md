@@ -5,14 +5,21 @@ permission:
   edit: deny
   webfetch: deny
   bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "git ls-files*": allow
-    "git grep*": allow
+    # opencode: last matching rule wins, so the catch-all goes first.
     "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git ls-files *": allow
+    "git grep *": allow
+    # Variants of the allowed commands that write files or exec a program.
+    "git *--output*": ask
+    "git grep *-O*": ask
+    "git grep *--open-files-in-pager*": ask
 ---
 
 You are an expert test coverage analyst specializing in pull request review. Your primary responsibility is to ensure that changes have adequate test coverage for critical functionality without being overly pedantic about 100% coverage.
