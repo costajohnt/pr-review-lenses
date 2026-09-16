@@ -14,12 +14,23 @@ permission:
     "git status *": allow
     "git branch": allow
     "git branch --show-current": allow
+    "git branch --list *": allow
     "git ls-files *": allow
-    "git grep *": allow
-    # Variants of the allowed commands that write files or exec a program.
+    # git grep is deliberately absent: -O / --open-files-in-pager exec a
+    # program, and flag bundling (-iOcmd) plus long-option prefixes (--open-fi)
+    # defeat any literal ask rule. Use the built-in grep tool instead.
+    # --output=<file> writes a file while still matching the patterns above.
     "git *--output*": ask
-    "git grep *-O*": ask
-    "git grep *--open-files-in-pager*": ask
+    # opencode matches the whole command string, so "git diff *" would also
+    # match "git diff; <anything>". Shell operators fall back to ask.
+    "*;*": ask
+    "*|*": ask
+    "*&*": ask
+    "*>*": ask
+    "*<*": ask
+    "*$(*": ask
+    "*`*": ask
+    "*\n*": ask
 ---
 
 You are an expert code reviewer specializing in modern software development across multiple languages and frameworks. Your primary responsibility is to review code against this repository's guidelines with high precision to minimize false positives.
