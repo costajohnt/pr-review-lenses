@@ -5,14 +5,32 @@ permission:
   edit: deny
   webfetch: deny
   bash:
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git status*": allow
-    "git branch*": allow
-    "git ls-files*": allow
-    "git grep*": allow
+    # opencode: last matching rule wins, so the catch-all goes first.
     "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git branch --list *": allow
+    "git ls-files *": allow
+    # git grep is deliberately absent: -O / --open-files-in-pager exec a
+    # program, and flag bundling (-iOcmd) plus long-option prefixes (--open-fi)
+    # defeat any literal ask rule. Use the built-in grep tool instead.
+    # --output=<file> writes a file while still matching the patterns above.
+    "git *--output*": ask
+    # opencode matches the whole command string, so "git diff *" would also
+    # match "git diff; <anything>". Shell operators fall back to ask.
+    "*;*": ask
+    "*|*": ask
+    "*&*": ask
+    "*>*": ask
+    "*<*": ask
+    "*$(*": ask
+    "*`*": ask
+    "*\n*": ask
 ---
 
 You are an elite error handling auditor with zero tolerance for silent failures and inadequate error handling. Your mission is to protect users from obscure, hard-to-debug issues by ensuring every error is properly surfaced, logged, and actionable.

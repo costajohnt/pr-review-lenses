@@ -89,7 +89,7 @@ install.sh                          # non-plugin fallback installer
 - **Subagent orchestration.** `review-pr` has the `agent` tool in its frontmatter, which lets it delegate to the other agents as subagents (each getting a fresh, isolated context). That's the closest equivalent to the Claude plugin's parallel `Task` fan-out.
 - **Advisory vs. editing.** Every reviewer except `code-simplifier` only reports findings. `code-simplifier` actually rewrites code, so `review-pr` never runs it automatically - it only recommends it.
 - **Project guidelines.** The originals were written for one specific codebase (Sentry/Statsig/`errorIds.ts`). These ports are genericized to defer to whatever your repo provides: `AGENTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`, `CONTRIBUTING.md`, or configured linters.
-- **Restricting tools.** Reviewers use `tools: ["read", "search", "shell"]` (shell only to run `git diff`). Tighten or loosen per your comfort; omitting `tools` entirely grants all tools.
+- **Restricting tools.** Reviewers use `tools: ["read", "search", "shell"]`. The prompts tell them to use shell only for `git diff`, but Copilot CLI's `shell` entry is unrestricted, so that limit is prompt text, not enforcement. Tighten or loosen per your comfort; omitting `tools` entirely grants all tools.
 
 ## opencode
 
@@ -99,7 +99,7 @@ Permissions per lens:
 
 - The five advisory reviewers (`code-reviewer`, `silent-failure-hunter`, `type-design-analyzer`, `comment-analyzer`, `pr-test-analyzer`) run with `edit: deny` so they can only report.
 - `code-simplifier` runs with `edit: allow` since it rewrites code in place.
-- The five advisory reviewers (and `review-pr`) allow only read-only git commands (`git diff`, `git log`, `git show`, `git status`, `git branch`, `git ls-files`, `git grep`); any other shell command falls through to `"*": ask`.
+- The five advisory reviewers (and `review-pr`) allow only read-only git commands (`git diff`, `git log`, `git show`, `git status`, `git branch` in list mode, `git ls-files`); any other shell command falls through to `"*": ask`. The allow patterns are space-anchored (`"git diff *"`, not `"git diff*"`) so `git difftool` does not match; `--output=<file>` and any command containing a shell operator (`;`, `|`, `&`, `>`, `<`, `$(`, backtick, newline) are set to `ask`, since opencode matches patterns against the whole command string. `git grep` is not allowed because its `-O` / `--open-files-in-pager` flags exec a program and cannot be reliably excluded by pattern; the built-in `grep` tool covers search. opencode resolves overlapping bash patterns with last-match-wins in config order, which is why every block lists its catch-all `"*"` first.
 - `code-simplifier` allows shell generally but denies `git push`, `gh pr`, `gh api`, and `rm -rf`.
 - The six lenses use `mode: all`, so you can Tab to any one directly or have the orchestrator delegate to it.
 
