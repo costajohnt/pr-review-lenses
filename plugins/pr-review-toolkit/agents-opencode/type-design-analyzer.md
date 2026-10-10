@@ -16,6 +16,11 @@ permission:
     "git branch --show-current": allow
     "git branch --list *": allow
     "git ls-files *": allow
+    "git diff": allow
+    "git log": allow
+    "git show": allow
+    "git status": allow
+    "git ls-files": allow
     # git grep is deliberately absent: -O / --open-files-in-pager exec a
     # program, and flag bundling (-iOcmd) plus long-option prefixes (--open-fi)
     # defeat any literal ask rule. Use the built-in grep tool instead.
