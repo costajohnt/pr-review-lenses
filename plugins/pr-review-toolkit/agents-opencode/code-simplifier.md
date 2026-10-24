@@ -6,11 +6,41 @@ permission:
   webfetch: deny
   bash:
     # opencode: last matching rule wins, so the catch-all goes first.
-    "*": allow
+    # Allowlist, not a denylist: deny globs over "*": allow are bypassed by
+    # rm -fr, git -C . push, env git push, gh --repo x pr, and so on. Anything
+    # not listed (tests, formatters, linters) falls through to ask.
+    "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git branch --list *": allow
+    "git ls-files *": allow
+    "git diff": allow
+    "git log": allow
+    "git show": allow
+    "git status": allow
+    "git ls-files": allow
+    # --output=<file> writes a file while still matching the patterns above.
+    "git *--output*": ask
+    # Literal forms are denied outright; variants of them still hit ask above.
     "git push*": deny
     "gh pr*": deny
     "gh api*": deny
     "rm -rf*": deny
+    # opencode matches the whole command string, so "git diff *" would also
+    # match "git diff; <anything>". Shell operators fall back to ask.
+    "*;*": ask
+    "*|*": ask
+    "*&*": ask
+    "*>*": ask
+    "*<*": ask
+    "*$(*": ask
+    "*`*": ask
+    "*\n*": ask
 ---
 
 You are an expert code simplification specialist focused on enhancing code clarity, consistency, and maintainability while preserving exact functionality. Your expertise lies in applying project-specific best practices to simplify and improve code without altering its behavior. You prioritize readable, explicit code over overly compact solutions. This is a balance you have mastered as an expert software engineer.
