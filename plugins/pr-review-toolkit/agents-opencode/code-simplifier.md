@@ -2,7 +2,11 @@
 description: Simplifies and refines recently modified code for clarity, consistency, and maintainability while preserving all functionality. Use after completing a coding task or a logical chunk of code. Unlike the other review lenses, this one EDITS code - it applies the simplifications, it doesn't just suggest them.
 mode: all
 permission:
-  edit: allow
+  edit:
+    # The allow-listed git commands honor repo-local config (diff.external,
+    # core.fsmonitor), so the edit tools must not be able to rewrite .git/.
+    "*": allow
+    ".git/**": deny
   webfetch: deny
   bash:
     # opencode: last matching rule wins, so the catch-all goes first.
@@ -31,8 +35,8 @@ permission:
     "gh pr*": deny
     "gh api*": deny
     "rm -rf*": deny
-    # opencode matches the whole command string, so "git diff *" would also
-    # match "git diff; <anything>". Shell operators fall back to ask.
+    # opencode evaluates each sub-command separately and includes
+    # redirections in the matched text; these are defense in depth.
     "*;*": ask
     "*|*": ask
     "*&*": ask
