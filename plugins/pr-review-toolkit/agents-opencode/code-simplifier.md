@@ -9,6 +9,7 @@ permission:
     # nested repo's. opencode matches the project-relative path case-
     # sensitively and a Mac filesystem is not (.GIT/config is .git/config),
     # so every dot-path is denied rather than spelling out ".git".
+    # Lexical only: see the README for what these rules cannot close.
     "*": allow
     ".*": deny
     "*/.*": deny
