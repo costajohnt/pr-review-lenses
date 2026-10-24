@@ -4,9 +4,14 @@ mode: all
 permission:
   edit:
     # The allow-listed git commands honor repo-local config (diff.external,
-    # core.fsmonitor), so the edit tools must not be able to rewrite .git/.
+    # core.fsmonitor), so the edit tools must not reach any .git: the dir,
+    # a linked worktree's .git file (repointable at a fake gitdir), or a
+    # nested repo's. opencode matches the project-relative path case-
+    # sensitively and a Mac filesystem is not (.GIT/config is .git/config),
+    # so every dot-path is denied rather than spelling out ".git".
     "*": allow
-    ".git/**": deny
+    ".*": deny
+    "*/.*": deny
   webfetch: deny
   bash:
     # opencode: last matching rule wins, so the catch-all goes first.
