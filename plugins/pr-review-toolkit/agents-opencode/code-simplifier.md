@@ -2,15 +2,55 @@
 description: Simplifies and refines recently modified code for clarity, consistency, and maintainability while preserving all functionality. Use after completing a coding task or a logical chunk of code. Unlike the other review lenses, this one EDITS code - it applies the simplifications, it doesn't just suggest them.
 mode: all
 permission:
-  edit: allow
+  edit:
+    # The allow-listed git commands honor repo-local config (diff.external,
+    # core.fsmonitor), so the edit tools must not reach any .git: the dir,
+    # a linked worktree's .git file (repointable at a fake gitdir), or a
+    # nested repo's. opencode matches the project-relative path case-
+    # sensitively and a Mac filesystem is not (.GIT/config is .git/config),
+    # so every dot-path is denied rather than spelling out ".git".
+    # Lexical only: see the README for what these rules cannot close.
+    "*": allow
+    ".*": deny
+    "*/.*": deny
   webfetch: deny
   bash:
     # opencode: last matching rule wins, so the catch-all goes first.
-    "*": allow
+    # Allowlist, not a denylist: deny globs over "*": allow are bypassed by
+    # rm -fr, git -C . push, env git push, gh --repo x pr, and so on. Anything
+    # not listed (tests, formatters, linters) falls through to ask.
+    "*": ask
+    # Space-anchored so "git diff *" cannot match "git difftool ...".
+    "git diff *": allow
+    "git log *": allow
+    "git show *": allow
+    "git status *": allow
+    "git branch": allow
+    "git branch --show-current": allow
+    "git branch --list *": allow
+    "git ls-files *": allow
+    "git diff": allow
+    "git log": allow
+    "git show": allow
+    "git status": allow
+    "git ls-files": allow
+    # --output=<file> writes a file while still matching the patterns above.
+    "git *--output*": ask
+    # Literal forms are denied outright; variants of them still hit ask above.
     "git push*": deny
     "gh pr*": deny
     "gh api*": deny
     "rm -rf*": deny
+    # opencode evaluates each sub-command separately and includes
+    # redirections in the matched text; these are defense in depth.
+    "*;*": ask
+    "*|*": ask
+    "*&*": ask
+    "*>*": ask
+    "*<*": ask
+    "*$(*": ask
+    "*`*": ask
+    "*\n*": ask
 ---
 
 You are an expert code simplification specialist focused on enhancing code clarity, consistency, and maintainability while preserving exact functionality. Your expertise lies in applying project-specific best practices to simplify and improve code without altering its behavior. You prioritize readable, explicit code over overly compact solutions. This is a balance you have mastered as an expert software engineer.
