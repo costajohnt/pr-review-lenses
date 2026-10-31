@@ -1,7 +1,7 @@
 {
   "name": "pr-review-toolkit",
   "description": "Specialized PR/diff review agents for GitHub Copilot CLI, ported from Anthropic's pr-review-toolkit: general code review, silent-failure hunting, type-design analysis, comment analysis, test-coverage analysis, code simplification, plus a review-pr orchestrator that delegates to them as subagents.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "John Costa",
     "email": "costajohnt@gmail.com"
