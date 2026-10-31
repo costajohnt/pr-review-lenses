@@ -37,6 +37,14 @@ One-liner, copies the agents into `~/.copilot/agents/`:
 curl -fsSL https://raw.githubusercontent.com/costajohnt/pr-review-lenses/main/install.sh | bash
 ```
 
+That clones `main`. To pin a release, set `REF` to a tag or branch (the plugin `version` in `plugins/pr-review-toolkit/plugin.json` is bumped whenever an agent or its permission block changes, so the tag tells you which permission model you installed):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/costajohnt/pr-review-lenses/main/install.sh | REF=v1.1.0 bash
+```
+
+The installer refuses to overwrite agents that already exist in the target directory; set `FORCE=1` to replace them.
+
 Or clone and run it:
 
 ```sh
@@ -76,7 +84,7 @@ The agents read the diff themselves (`git diff` by default; `git diff main...HEA
 
 ```
 .github/plugin/marketplace.json     # makes the repo a Copilot CLI marketplace
-.github/workflows/ci.yml            # CI: JSON validity, shellcheck, agent frontmatter
+.github/workflows/ci.yml            # CI: JSON validity, shellcheck, agent frontmatter, permission ordering, version bump
 plugins/pr-review-toolkit/
   plugin.json                       # the plugin manifest
   agents/*.agent.md                 # the 7 agents (Copilot CLI format)

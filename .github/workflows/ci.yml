@@ -36,3 +36,54 @@ jobs:
               print('\n'.join(bad)); sys.exit(1)
           print('frontmatter OK')
           PYEOF
+      - name: Validate opencode permission ordering
+        run: |
+          python3 - <<'PYEOF'
+          import pathlib, sys, yaml
+          # opencode applies the LAST matching rule, so a catch-all "*" after
+          # narrower rules silently overrides them (a "*": allow placed last
+          # once made every deny inert). Every map must open with its only
+          # "*", bash/task catch-alls must be ask or deny (allowlist), and no
+          # allow may come after a narrower ask/deny.
+          bad = []
+          for f in sorted(pathlib.Path('plugins').glob('*/agents-opencode/*.md')):
+              fm = yaml.safe_load(f.read_text(encoding='utf-8').split('---\n', 2)[1])
+              for tool, rules in (fm.get('permission') or {}).items():
+                  if not isinstance(rules, dict):
+                      continue
+                  keys = list(rules)
+                  if keys[0] != '*' or '*' in keys[1:]:
+                      bad.append(f"{f}: permission.{tool} must start with its only catch-all '*'")
+                  if tool in ('bash', 'task') and rules.get('*') == 'allow':
+                      bad.append(f"{f}: permission.{tool} catch-all must be ask or deny")
+                  restricted = False
+                  for k in keys[1:]:
+                      if rules[k] != 'allow':
+                          restricted = True
+                      elif restricted:
+                          bad.append(f"{f}: permission.{tool}: {k!r}: allow follows a narrower ask/deny")
+          if bad:
+              print('\n'.join(bad)); sys.exit(1)
+          print('permission ordering OK')
+          PYEOF
+      - name: Marketplace versions match plugin.json
+        run: |
+          v=$(jq -r .version plugins/pr-review-toolkit/plugin.json)
+          jq -e --arg v "$v" '.metadata.version == $v and all(.plugins[]; .version == $v)' \
+            .github/plugin/marketplace.json >/dev/null \
+            || { echo "marketplace.json versions do not match plugin.json ($v)"; exit 1; }
+      - name: Plugin version bumped when agents change
+        if: github.event_name == 'pull_request'
+        env:
+          BASE: ${{ github.base_ref }}
+        run: |
+          git fetch --depth=1 origin "$BASE"
+          if git diff --quiet FETCH_HEAD HEAD -- 'plugins/*/agents' 'plugins/*/agents-opencode'; then
+            echo "no agent changes"; exit 0
+          fi
+          old=$(git show FETCH_HEAD:plugins/pr-review-toolkit/plugin.json | jq -r .version)
+          new=$(jq -r .version plugins/pr-review-toolkit/plugin.json)
+          if [ "$old" = "$new" ]; then
+            echo "agents changed but plugins/pr-review-toolkit/plugin.json version is still $new"; exit 1
+          fi
+          echo "version $old -> $new"

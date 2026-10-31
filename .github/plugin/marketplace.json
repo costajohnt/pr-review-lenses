@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Copilot CLI review agents ported from Anthropic's pr-review-toolkit.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "pr-review-toolkit",
       "description": "Six specialized review agents plus a review-pr orchestrator for GitHub Copilot CLI.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "plugins/pr-review-toolkit"
     }
   ]
